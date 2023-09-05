@@ -46,7 +46,10 @@ class METRICS:
 
     def get_seg_metrics(self):
         pixAcc = 1.0 * self.total_correct / (np.spacing(1) + self.total_label)
-        pixAcc_for_obj_1 = 1.0 * self.each_object_correct[0] / (np.spacing(1) + self.each_object_total_number[0])
+        object_arr = []
+        for i in range(0, self.num_classes):
+            object_arr.append(1.0 * self.each_object_correct[i] / (np.spacing(1) + self.each_object_total_number[i]))
+        mACC = sum(object_arr) / len(object_arr)
         IoU = []
         for i in range(0, self.num_classes):
             if (self.total_union[i] > 0):
@@ -56,7 +59,7 @@ class METRICS:
             "Pixel_Accuracy": np.round(pixAcc, 3),
             "Mean_IoU": np.round(mIoU, 3),
             "Class_IoU": dict(zip(range(self.num_classes), np.round(IoU, 3))),
-            "Pixel_Accuracy_for_obj_1": np.round(pixAcc_for_obj_1, 3)
+            "Pixel_Accuracy_for_obj_1": np.round(mACC, 3)
         }
 
 

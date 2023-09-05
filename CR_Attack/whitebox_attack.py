@@ -77,11 +77,11 @@ def main(args, config):
         output = model(data)
 
         los = loss(output, targ)
-        print(output.shape)
+        #print(output.shape)
         #save_image(data[0], 'input.jpg')
-        pixAcc0, mIoU0, _ , pixAccForOne = atk_m0.update_metrics(output, targ, num_classes)
-        print(pixAcc0, mIoU0, pixAccForOne)
-        break
+        pixAcc0, mIoU0, _ , mACC0 = atk_m0.update_metrics(output, targ, num_classes)
+        #print(pixAcc0, mIoU0, pixAccForOne)
+        
         adv = get_adv_examples_CRPGD(data,
                                      targ,
                                      model,
@@ -97,16 +97,18 @@ def main(args, config):
                                      b=args.b,
                                      INTEV=args.interval)
         output = model(adv)
-        pixAcc1, mIoU1, _ = atk_m1.update_metrics(output, targ, num_classes)
+        pixAcc1, mIoU1, _, mACC1 = atk_m1.update_metrics(output, targ, num_classes)
+        #print(mACC0, mACC1)
+        
         if cnt % 10 == 0:
             with open(args.log, 'a') as f:
                 print("ROUND %d" % (cnt), file=f)
-                print("Clean %f %f" % (pixAcc0, mIoU0), file=f)
-                print("OUR  %f %f" % (pixAcc1, mIoU1), file=f)
+                print("Clean %f %f %f" % (pixAcc0, mIoU0, mACC0), file=f)
+                print("OUR  %f %f %f" % (pixAcc1, mIoU1, mACC1), file=f)
 
                 print("ROUND %d" % (cnt))
-                print("Clean %f %f" % (pixAcc0, mIoU0))
-                print("OUR  %f %f" % (pixAcc1, mIoU1))
+                print("Clean %f %f %f" % (pixAcc0, mIoU0, mACC0))
+                print("OUR  %f %f %f" % (pixAcc1, mIoU1, mACC1))
 
                 f.close()
         
