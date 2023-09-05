@@ -1,0 +1,6 @@
+modeldata/
+__pycache__/
+*.pyc
+.vscode
+log/*.txt
+VOC2012/VOCdevkit
