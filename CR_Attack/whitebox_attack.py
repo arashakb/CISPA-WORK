@@ -13,9 +13,11 @@ from whitebox_lib import get_adv_examples_CRPGD
 from torchvision.utils import save_image
 import torchvision.transforms as T 
 from PIL import Image 
+from util import save_target
 
 def get_instance(module, name, config, *args):
     return getattr(module, config[name]['type'])(*args, **config[name]['args'])
+
 
 
 CNT = 0
@@ -69,6 +71,7 @@ def main(args, config):
     RUN_NUM = 500
     loss = nn.CrossEntropyLoss(ignore_index=config['ignore_index'],
                                reduction='none')
+    
     for batch_idx, (data, targ) in enumerate(val_loader):
         cnt += 1
         torch.cuda.empty_cache()
@@ -85,11 +88,8 @@ def main(args, config):
         #print(pixAcc0, mIoU0, pixAccForOne)
         
         transform = T.ToPILImage()
-
-        img = transform(data[0])
-        img.save('data.jpg')
-
-
+        save_target(targ, './input_images', 'output', [0,255,0, 0,0,255, 0,255,255, 128,200,25])
+        break
         adv = get_adv_examples_CRPGD(data,
                                      targ,
                                      model,
