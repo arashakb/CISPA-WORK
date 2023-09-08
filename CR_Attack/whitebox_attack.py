@@ -13,7 +13,7 @@ from whitebox_lib import get_adv_examples_CRPGD
 from torchvision.utils import save_image
 import torchvision.transforms as T 
 from PIL import Image 
-from util import save_target
+from util import save_target, save_images
 
 def get_instance(module, name, config, *args):
     return getattr(module, config[name]['type'])(*args, **config[name]['args'])
@@ -89,7 +89,9 @@ def main(args, config):
         
         transform = T.ToPILImage()
         save_target(targ, './input_images', 'output', [0,255,0, 0,0,255, 0,255,255, 128,200,25])
-        break
+        save_images(output, targ, './input_images', 'output', [0,255,0, 0,0,255, 0,255,255, 128,200,25] )
+        break 
+    
         adv = get_adv_examples_CRPGD(data,
                                      targ,
                                      model,
@@ -106,8 +108,9 @@ def main(args, config):
                                      INTEV=args.interval)
         output = model(adv)
         pixAcc1, mIoU1, _, mACC1 = atk_m1.update_metrics(output, targ, num_classes)
-        #print(mACC0, mACC1)
         
+        save_images(output, targ, './input_images', 'output', [0,255,0, 0,0,255, 0,255,255, 128,200,25] )
+        break 
         if cnt % 1 == 0:
             with open(args.log, 'a') as f:
                 print("ROUND %d" % (cnt), file=f)
