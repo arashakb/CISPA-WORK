@@ -11,6 +11,8 @@ import torch.nn.functional as F
 from util import METRICS, setup_seed
 from whitebox_lib import get_adv_examples_CRPGD
 from torchvision.utils import save_image
+import torchvision.transforms as T 
+from PIL import Image 
 
 def get_instance(module, name, config, *args):
     return getattr(module, config[name]['type'])(*args, **config[name]['args'])
