@@ -83,15 +83,17 @@ def main(args, config):
 
         los = loss(output, targ)
         #print(output.shape)
-        #save_image(data[0], 'input.jpg')
+        save_image(data[0], './input_images/input.jpg')
         pixAcc0, mIoU0, _ , mACC0 = atk_m0.update_metrics(output, targ, num_classes)
         #print(pixAcc0, mIoU0, pixAccForOne)
         
         transform = T.ToPILImage()
-        save_target(targ, './input_images', 'output', [0,255,0, 0,0,255, 0,255,255, 128,200,25])
-        save_images(output, targ, './input_images', 'output', [0,255,0, 0,0,255, 0,255,255, 128,200,25] )
-        break 
-    
+
+        save_image(data[0], './input_images/input ' + str(cnt) + '.jpg')
+        save_target(targ, './labels', 'label '+str(cnt), [0,255,0, 0,0,255, 0,255,255, 128,200,25])
+        save_images(output, targ, './clean_predictions', 'clean_pred '+str(cnt), [0,255,0, 0,0,255, 0,255,255, 128,200,25] )
+        
+
         adv = get_adv_examples_CRPGD(data,
                                      targ,
                                      model,
@@ -109,8 +111,8 @@ def main(args, config):
         output = model(adv)
         pixAcc1, mIoU1, _, mACC1 = atk_m1.update_metrics(output, targ, num_classes)
         
-        save_images(output, targ, './input_images', 'output', [0,255,0, 0,0,255, 0,255,255, 128,200,25] )
-        break 
+        save_images(output, targ, './adversarial_predictions', 'adv_pred '+str(cnt), [0,255,0, 0,0,255, 0,255,255, 128,200,25] )
+        
         if cnt % 1 == 0:
             with open(args.log, 'a') as f:
                 print("ROUND %d" % (cnt), file=f)
