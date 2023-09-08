@@ -84,6 +84,12 @@ def main(args, config):
         pixAcc0, mIoU0, _ , mACC0 = atk_m0.update_metrics(output, targ, num_classes)
         #print(pixAcc0, mIoU0, pixAccForOne)
         
+        transform = T.ToPILImage()
+
+        img = transform(data[0])
+        img.save('data.jpg')
+
+
         adv = get_adv_examples_CRPGD(data,
                                      targ,
                                      model,
@@ -102,7 +108,7 @@ def main(args, config):
         pixAcc1, mIoU1, _, mACC1 = atk_m1.update_metrics(output, targ, num_classes)
         #print(mACC0, mACC1)
         
-        if cnt % 10 == 0:
+        if cnt % 1 == 0:
             with open(args.log, 'a') as f:
                 print("ROUND %d" % (cnt), file=f)
                 print("Clean %f %f %f" % (pixAcc0, mIoU0, mACC0), file=f)
