@@ -27,8 +27,8 @@ class METRICS:
         self.total_inter = 0
         self.total_union = 0
         self.num_classes = num_classes
-        self.each_object_correct = [0] * self.num_classes
-        self.each_object_total_number = [0] * self.num_classes
+        self.total_each_object_correct = [0] * self.num_classes
+        self.total_each_object_total_number = [0] * self.num_classes
 
     def update_metrics(self, output, targ, num_classes):
         seg = eval_metrics(output, targ, num_classes)
@@ -41,14 +41,15 @@ class METRICS:
         self.total_label += labeled
         self.total_inter += inter
         self.total_union += union
-        self.each_object_correct += each_object_correct 
-        self.each_object_total_number += each_object_total_number
+        self.total_each_object_correct += each_object_correct 
+        self.total_each_object_total_number += each_object_total_number
 
     def get_seg_metrics(self):
         pixAcc = 1.0 * self.total_correct / (np.spacing(1) + self.total_label)
         object_arr = []
         for i in range(0, self.num_classes):
-            object_arr.append(1.0 * self.each_object_correct[i] / (np.spacing(1) + self.each_object_total_number[i]))
+            if self.total_each_object_total_number[i] != 0:
+                object_arr.append(1.0 * self.total_each_object_correct[i] / (np.spacing(1) + self.total_each_object_total_number[i]))
         mACC = sum(object_arr) / len(object_arr)
         IoU = []
         for i in range(0, self.num_classes):

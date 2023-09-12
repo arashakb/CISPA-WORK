@@ -47,8 +47,9 @@ def batch_pix_accuracy(predict, target, num_class, labeled):
     
     pixel_correct = ((predict == target) * labeled).sum()
     for i in range(num_class):
-        sum_of_object = ((predict == target) * (predict == i) * labeled).sum()
-        number_labeled_object = ((target == i) * labeled).sum()
+        index_mat = torch.ones_like(predict)*i
+        sum_of_object = ((predict == target) * (predict == index_mat) * labeled).sum()
+        number_labeled_object = ((target == index_mat) * labeled).sum()
         #print(sum_of_object.cpu().numpy(), number_labeled_object.cpu().numpy())
         obj_correct.append(sum_of_object)
         obj_total.append(number_labeled_object) 
