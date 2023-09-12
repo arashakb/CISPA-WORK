@@ -24,7 +24,7 @@ CNT = 0
 
 
 def main(args, config):
-    steps = 50
+    
     setup_seed(100)
     val_loader = get_instance(dataloaders, 'val_loader', config)
     num_classes = val_loader.dataset.num_classes
@@ -72,6 +72,8 @@ def main(args, config):
     loss = nn.CrossEntropyLoss(ignore_index=config['ignore_index'],
                                reduction='none')
     
+    steps = 50
+
     for batch_idx, (data, targ) in enumerate(val_loader):
         cnt += 1
         torch.cuda.empty_cache()
@@ -84,14 +86,37 @@ def main(args, config):
         los = loss(output, targ)
         #print(output.shape)
         save_image(data[0], './input_images/input.jpg')
-        pixAcc0, mIoU0, _ , mACC0 = atk_m0.update_metrics(output, targ, num_classes)
+        pixAcc0, mIoU0, class_IOU0 , mACC0 = atk_m0.update_metrics(output, targ, num_classes)
         #print(pixAcc0, mIoU0, pixAccForOne)
         
-        transform = T.ToPILImage()
+        # transform = T.ToPILImage()
+        custom_palette = [
+            (255, 0, 0),      # Red
+            (0, 255, 0),      # Green
+            (0, 0, 255),      # Blue
+            (255, 255, 0),    # Yellow
+            (255, 0, 255),    # Magenta
+            (0, 255, 255),    # Cyan
+            (128, 0, 0),      # Maroon
+            (0, 128, 0),      # Green (dark)
+            (0, 0, 128),      # Navy
+            (128, 128, 0),    # Olive
+            (128, 0, 128),    # Purple
+            (0, 128, 128),    # Teal
+            (192, 192, 192),  # Silver
+            (128, 128, 128),  # Gray
+            (255, 165, 0),    # Orange
+            (255, 192, 203),  # Pink
+            (255, 255, 255),  # White
+            (0, 0, 0),        # Black
+            (255, 99, 71),    # Tomato
+            (255, 140, 0),    # DarkOrange
+            (0, 128, 0)       # Green (dark)
+        ]
 
         save_image(data[0], './input_images/input ' + str(cnt) + '.jpg')
-        save_target(targ, './labels', 'label '+str(cnt), [0,255,0, 0,0,255, 0,255,255, 128,200,25])
-        save_images(output, targ, './clean_predictions', 'clean_pred '+str(cnt), [0,255,0, 0,0,255, 0,255,255, 128,200,25] )
+        save_target(targ, './labels', 'label '+str(cnt), custom_palette)
+        save_images(output, targ, './clean_predictions', 'clean_pred '+str(cnt), custom_palette )
         
 
         adv = get_adv_examples_CRPGD(data,
@@ -109,9 +134,9 @@ def main(args, config):
                                      b=args.b,
                                      INTEV=args.interval)
         output = model(adv)
-        pixAcc1, mIoU1, _, mACC1 = atk_m1.update_metrics(output, targ, num_classes)
+        pixAcc1, mIoU1, class_IOU1, mACC1 = atk_m1.update_metrics(output, targ, num_classes)
         
-        save_images(output, targ, './adversarial_predictions', 'adv_pred '+str(cnt), [0,255,0, 0,0,255, 0,255,255, 128,200,25] )
+        save_images(output, targ, './adversarial_predictions', 'adv_pred '+str(cnt), custom_palette )
         
         if cnt % 1 == 0:
             with open(args.log, 'a') as f:
@@ -121,10 +146,12 @@ def main(args, config):
 
                 print("ROUND %d" % (cnt))
                 print("Clean %f %f %f" % (pixAcc0, mIoU0, mACC0))
+                print(len(class_IOU0) )
                 print("OUR  %f %f %f" % (pixAcc1, mIoU1, mACC1))
+                # print(class_IOU1)
 
                 f.close()
-        
+
         if cnt == RUN_NUM:
             break
 

@@ -6,6 +6,7 @@ import torch
 import os
 import matplotlib.pyplot as plt
 from utils.metrics import eval_metrics
+from PIL import Image
 
 
 def setup_seed(seed):
@@ -69,7 +70,11 @@ def save_target(targ, output_path, name, palette):
     target = target.detach().cpu().squeeze(0)
     target[target == 255] = 0
     y = target.numpy()
-    colorized_mask = colorize_mask(y, palette)
+    # colorized_mask = colorize_mask(y, palette)
+    
+    colorized_mask = Image.fromarray(y.astype('uint8'), mode='P')
+    colorized_mask.putpalette([c for color in palette for c in color])
+
     colorized_mask.save(os.path.join(output_path, name + '.png'))
 
 
@@ -81,7 +86,11 @@ def save_images(output, targ, output_path, name, palette):
 
     y = torch.argmax(mask, dim=1).squeeze(0)
     y = y.numpy()
-    colorized_mask = colorize_mask(y, palette)
+    # colorized_mask = colorize_mask(y, palette)
+
+    colorized_mask = Image.fromarray(y.astype('uint8'), mode='P')
+    colorized_mask.putpalette([c for color in palette for c in color])
+    
     colorized_mask.save(os.path.join(output_path, name + '.png'))
 
 
